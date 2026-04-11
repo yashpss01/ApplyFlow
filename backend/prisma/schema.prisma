@@ -11,3 +11,75 @@ generator client {
 datasource db {
   provider = "mysql"
 }
+
+model User{
+  id String @id @default(uuid())
+  name String 
+  email String  @unique
+  password String 
+  role ROLE @default(USER)
+  createdAt DateTime
+  updatedAt DateTime
+  
+  applications Application[]
+  interviews Interview[]
+  reminders Reminder[]
+  
+}
+enum ROLE{
+  USER
+  ADMIN
+}
+
+model Application{
+  id String @id @default(uuid())
+  name String 
+  position String
+  createdAt DateTime
+  updatedAt DateTime
+
+  interview Interview[]
+  reminders Reminder[]
+
+  userID String
+  user User @relation( fields: [userID], references: [id],onDelete: Cascade)
+}
+
+model Interview{
+  id String @id @default(uuid())
+  name String
+  scheduledFor DateTime
+  type INTERVIEWTYPE
+  address String?
+  status INTERVIEWSTATUS @default(SCHEDULED)
+    
+  reminders Reminder[]
+  
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  applicationID String
+  application Application @relation(fields: [applicationID],references: [id])
+}
+enum INTERVIEWTYPE{
+  ONLINE
+  OFFLINE
+}
+enum INTERVIEWSTATUS{
+  SCHEDULED
+  ATTEMPTED
+  REJECTED
+  CLEARED
+}
+
+model Reminder{
+  id String @id @default(uuid())
+  time DateTime
+
+  userID String
+  user User @relation(fields: [userID],references: [id])
+  applicationID String
+  application Application @relation(fields: [applicationID],references: [id])
+  interviewID String
+  interview Interview @relation(fields: [interviewID],references: [id])
+
+}
